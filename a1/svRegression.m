@@ -1,5 +1,3 @@
-% DONE?
-
 function [model] = svRegression(X,y,epsilon)
 
 % Compute sizes
@@ -8,9 +6,9 @@ function [model] = svRegression(X,y,epsilon)
 % Add bias variable
 Z = [ones(n,1) X];
 
-% Solve least squares problem
-f = [ones(n,1); zeros(d+1,1)];
-A = [-eye(n) Z; -eye(n) -Z; -eye(n) zeros(n,d+1)];
+% Solve SVM
+f = [ones(n,1); zeros(d+1,1)]; % bias
+A = [-eye(n) Z; -eye(n) -Z; -eye(n) zeros(n,d+1)]; % linear program
 b = [y+epsilon; -y+epsilon; zeros(n,1)];
 x = linprog(f,A,b);
 

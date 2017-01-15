@@ -13,8 +13,8 @@ alpha = 1;
 %X = varargin{1}; lambda = varargin{end};L = 1/4*max(eigs(X*X'))+lambda;alpha = 1/L; % 3.
 while 1
     %% Compute search direction
-    Hv = @(v) Hvfunc(w,1,varargin{:});
-    d = pcg(@Hv,g,optTol);
+    Hv = @(v)Hvfunc(w,v,varargin{:});
+    d = pcg(Hv,g,optTol);
     
     %% Line-search to find an acceptable value of alpha
 	w_new = w - alpha*d;
@@ -81,5 +81,5 @@ function [Hv] = Hvfunc(w,v,X,y,lambda)
 yXw = y.*(X*w);
 sigmoid = 1./(1+exp(-yXw));
 %Hv = X'*(diag(sparse(sigmoid.*(1-sigmoid)))*(X*v)) + lambda*v;
-Hv = X'*(diag(sparse(sigmoid.*(ones(n,1)-sigmoid)))*(X*v)) + lambda*speye(d);
+Hv = X'*(diag(sparse(sigmoid.*(ones(n,1)-sigmoid)))*(X*v)) + lambda*speye(d)*v;
 end

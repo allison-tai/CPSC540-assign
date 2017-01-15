@@ -1,5 +1,3 @@
-% DONE
-
 function [model] = robustRegression(X,y)
 
 % Compute sizes
@@ -8,9 +6,9 @@ function [model] = robustRegression(X,y)
 % Add bias variable
 Z = [ones(n,1) X];
 
-% Solve least squares problem
-f = [ones(n,1); zeros(d+1,1)];
-A = [-eye(n) Z; -eye(n) -Z];
+% Solve L^1 minimization
+f = [ones(n,1); zeros(d+1,1)]; % bias
+A = [-eye(n) Z; -eye(n) -Z]; % linear program
 b = [y; -y];
 x = linprog(f,A,b);
 
