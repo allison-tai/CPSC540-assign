@@ -27,14 +27,13 @@ W = reshape(w, [d k]);
 f = sum(sum(-X'.*W(:,y))+log(sum(exp(W'*X')))); % Function value
 
 g = zeros(d,k);
-v = sum(exp(W'*X')); % softmax probability
+v = exp(sum(X'.*W(:,y)))./sum(exp(W'*X')); % softmax probability
+X2 = sum(X.*(v'*ones()); % sum(xi * softmax probability for xi)
 for c = 1:k
     % only consider the xi where yi == c
-    vc = exp(X*W(:,c))./v';
-    X2 = sum(X.*(vc*ones(1,d)));
     yc = ones(n,d);
     yc(y ~= c,:) = 0;
     g(:,c) = X2 - sum(X.*yc);
 end
-g = reshape(g, [d*k 1]);
+%g = reshape(g, [d*k 1]);
 end
