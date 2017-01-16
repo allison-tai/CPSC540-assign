@@ -1,4 +1,3 @@
-% DONE 
 % Clear variables and close figures
 clear all
 close all
@@ -9,7 +8,7 @@ load nonLinear.mat % Loads {X,y,Xtest,ytest}
 [t,~] = size(Xtest);
 
 % Train least squares model on training data
-sigma=0.5;lambda=1;
+sigma=1;lambda=1;
 model = leastSquaresRBFL2(X,y,sigma,lambda);
 
 % Test least squares model on test data
