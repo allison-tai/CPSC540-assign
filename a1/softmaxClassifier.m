@@ -4,11 +4,6 @@ function  [model] = softmaxClassifier(X,y)
 k = max(y);
 
 W = zeros(d,k); % Each column is a classifier
-% for c = 1:k
-%     yc = ones(n,1); % Treat class 'c' as (+1)
-%     yc(y ~= c) = -1; % Treat other classes as (-1)
-%     W(:,c) = findMin(@softmaxloss,W(:,c),500,1,X,yc);
-% end
 W(:) = findMin(@softmaxLoss,W(:),500,1,X,y,k);
 d = derivativeCheck(@softmaxLoss,W(:),X,y,k);
 
@@ -24,10 +19,10 @@ end
 function [f,g] = softmaxLoss(w,X,y,k)
 [n, d] = size(X);
 W = reshape(w, [d k]);
-f = sum(sum(-X'.*W(:,y))+log(sum(exp(W'*X')))); % Function value
+v = sum(exp(W'*X')); % recurring value
+f = sum(sum(-X'.*W(:,y))+log(v)); % Function value
 
 g = zeros(d,k);
-v = sum(exp(W'*X')); % softmax probability
 for c = 1:k
     % only consider the xi where yi == c
     vc = exp(X*W(:,c))./v';
