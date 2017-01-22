@@ -9,17 +9,20 @@ d = d+1;
 w = zeros(d,1);
 
 % Optimizaion parameters
-maxPasses = 1000;
+maxPasses = 500;
 progTol = 1e-4;
-% L = .25*max(eig(X'*X)) + lambda;
-L = .25*max(diag(X'*X)) + lambda;
+%L = .25*max(eig(X'*X)) + lambda;
+L = .25*diag(X'*X) + lambda;
+p = L/norm(L,1); % probability distribution
 
 w_old = w;
 for t = 1:maxPasses*d
     
     % Choose variable to update 'j'
-    j = randi(d);
+    j = sampleDiscrete(p); % 2. proportionate sampling
+    %j = randi(d); % 3. uniform sampling
     Z = X(:,j);
+    L_j = L(j);
     
     % Compute partial derivative 'g_j'
     yXw = y.*(X*w);
@@ -28,7 +31,7 @@ for t = 1:maxPasses*d
     g_j = g(j);
     
     % Update variable
-    w(j) = w(j) - (1/L)*g_j;
+    w(j) = w(j) - (1/L_j)*g_j;
     
     % Check for lack of progress after each "pass"
     if mod(t,d) == 0
