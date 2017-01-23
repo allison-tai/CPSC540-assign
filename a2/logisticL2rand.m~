@@ -36,7 +36,7 @@ for t = 1:maxPasses*d
     % Check for lack of progress after each "pass"
     if mod(t,d) == 0
         change = norm(w-w_old,inf);
-        fprintf('Passes = %d, function = %.4e, change = %.4f, step = %.3e\n',t/d,logisticL2_loss(w,X,y,lambda),change,(1/L_j)*g_j);
+        fprintf('Passes = %d, function = %.4e, change = %.4f, step = %.4f\n',t/d,logisticL2_loss(w,X,y,lambda),change);
         if change < progTol
             fprintf('Parameters changed by less than progTol on pass\n');
             break;
