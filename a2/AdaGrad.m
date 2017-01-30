@@ -39,8 +39,6 @@ for t = 1:maxPasses*n
     w = w - alpha*D*g;
     
     if mod(t,n) == 0
-        wrecord(:,:,t/n+1) = w;
-        w = sum(wrecord,3)/(t/n);
         change = norm(w-w_old,inf);
         fprintf('Passes = %d, function = %.4e, change = %.4f\n',t/n,logisticL2_loss(w,X,y,lambdaFull),change);
         if change < progTol
