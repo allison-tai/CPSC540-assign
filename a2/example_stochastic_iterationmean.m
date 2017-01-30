@@ -11,7 +11,7 @@ lambda = lambdaFull/n; % The regularization parameter on one example
 % Stochastic gradient
 w_old = w;
 %grecord = [];
-wrecord = w_old;
+wrecord = [];
 for t = 1:maxPasses*n
     
     % Choose variable to update
@@ -21,15 +21,14 @@ for t = 1:maxPasses*n
     [f,g] = logisticL2_loss(w,X(i,:),y(i),lambda);
     
     % Choose the step-size
-    alpha = 1/(lambda*(t-t^(0.5)+1));
+    alpha = 1/(lambda*t);
     
     % Take the stochastic gradient step
     %grecord = [grecord; g];
     w = w - alpha*g;
+    w = (w_old+w)/2;
     
     if mod(t,n) == 0
-        wrecord(:,:,t/n+1) = w;
-        w = sum(wrecord,3)/(t/n);
         change = norm(w-w_old,inf);
         fprintf('Passes = %d, function = %.4e, change = %.4f\n',t/n,logisticL2_loss(w,X,y,lambdaFull),change);
         if change < progTol
