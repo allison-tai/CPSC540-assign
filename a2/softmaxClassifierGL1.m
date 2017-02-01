@@ -3,15 +3,13 @@ function [model] = softmaxClassifierGL1(X,y,lambda)
 % Compute sizes
 [n,d] = size(X);
 k = max(y);
-Groups = (1:100)'*ones(1,k)
+Groups = (1:100)'*ones(1,k); % enumerating each row as a group
 
 
 W = zeros(d,k);
-Groups = reshape(Groups,[d*k 1]);
+Groups = reshape(Groups,[d*k 1]); % reshape group enumeration (to be eventually compatible with w)
 
 % Each column is a classifier
-%W(:) = findMin(@softmaxLoss,W(:),500,1,X,y,k,lambda);
-count = 0;
 W(:) = proxGradGroupL1(@(w) softmaxLoss(w,X,y,k,count),W(:),Groups,lambda,500);
 
 model.W = W;
