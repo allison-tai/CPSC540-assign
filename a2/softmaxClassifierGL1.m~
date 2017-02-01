@@ -26,6 +26,9 @@ end
 function [nll,g,H] = softmaxLoss(w,X,y,k,count)
 
 [n,p] = size(X);
+count = count + 1
+size(w)
+p*k
 W = reshape(w,[p k]);
 
 XW = X*W;

@@ -1,16 +1,17 @@
-function [w,f] = proxGradGroupL1(funObj,w,lambda,maxIter)
+function [w,f] = proxGradGroupL1(funObj,w,Groups,lambda,maxIter)
 % Minimize funOb(w) + lambda*sum(abs(w)) in groups % rows 0
 
 % Evaluate initial objective and gradient of smooth part
 [f,g] = funObj(w);
 funEvals = 1;
+Groups = reshape(Groups,size(w));
 
 L = 1;
 while funEvals < maxIter
     
     % proximal-gradient step
     alpha = 1/L;
-    w_new = softThresholdg(w - alpha*g,alpha*lambda); % change this function for group
+    w_new = softThresholdg(w - alpha*g,Groups,alpha*lambda); % change this function for group
     [f_new,g_new] = funObj(w_new);  
     funEvals = funEvals + 1;
     
@@ -18,7 +19,7 @@ while funEvals < maxIter
     while f_new > f + g'*(w_new - w) + (L/2)*norm(w_new-w)^2
         L = L*2;
         alpha = 1/L;
-        w_new = softThresholdg(w - alpha*g,alpha*lambda);
+        w_new = softThresholdg(w - alpha*g,Groups,alpha*lambda);
         [f_new,g_new] = funObj(w_new);
         funEvals = funEvals + 1;
     end
@@ -28,7 +29,7 @@ while funEvals < maxIter
     g = g_new;
 
     % Print out how we are doing
-    optCond = norm(w-softThresholdg(w-g,lambda),'inf');
+    optCond = norm(w-softThresholdg(w-g,Groups,lambda),'inf');
     fprintf('%6d %15.5e %15.5e %15.5e\n',funEvals,alpha,f + lambda*sum(abs(w)),optCond);
     
     if optCond < 1e-1
@@ -37,16 +38,17 @@ while funEvals < maxIter
 end
 end
 
-function [w] = softThresholdg(w,threshold) % change to group norm
+function [w] = softThresholdg(w,Groups,threshold) % change to group norm
     [d,k] = size(w);
+    w2 = w.^2; % pre-calculate
+    groupnorm = ones(size(w)); % initialize at one (avoids dividing by zero)
     for i=1:d
-        groupnorm_i = sqrt(sum(w(i,:).^2));
+        e_i = (Groups==i); % group indicator matrix
+        groupnorm_i = sqrt(sum(sum(w2.*e_i))); % group norm
         if groupnorm_i ~= 0
-            groupnorm(i) = groupnorm_i;
-        else
-            groupnorm(i) = 1;
+            indices = find(e_i); % indices corrersponding to group
+            groupnorm(indices) = groupnorm_i*ones(size(indices));
         end
     end
-    groupnorm = groupnorm'*ones(1,k); 
     w = (w./groupnorm).*max(0,groupnorm-threshold);
 end
