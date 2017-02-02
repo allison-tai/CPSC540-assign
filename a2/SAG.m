@@ -10,7 +10,7 @@ w = zeros(d,1);
 lambda = lambdaFull/n; % The regularization parameter on one example
 L = .25*max(diag(X'*X)) + lambda;
 
-% Stochastic gradient
+% Stochastic gradient initialization
 gvector = zeros(d,n);
 gadd = zeros(d,1);
 w_old = w;
@@ -26,12 +26,11 @@ for t = 1:maxPasses*n
     
     % Take the stochastic gradient step
     if gvector(:,i) ~= zeros(d,1)
-        gadd = gadd - gvector(:,i);
+        gadd = gadd - gvector(:,i)+g; % replace with 
         gvector(:,i) = g;
-        gadd = gadd + gvector(:,i);
     else
+        gadd = gadd + g;
         gvector(:,i) = g;
-        gadd = gadd + gvector(:,i);
     end 
     w = w - alpha*gadd/n;
     
