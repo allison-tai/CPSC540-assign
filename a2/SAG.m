@@ -3,7 +3,7 @@ load quantum.mat
 lambdaFull = 1;
 
 % Initialize
-maxPasses = 1;
+maxPasses = 10;
 progTol = 1e-4;
 w = zeros(d,1);
 lambda = lambdaFull/n; % The regularization parameter on one example
@@ -11,16 +11,7 @@ L = .25*max(diag(X'*X)) + lambda;
 
 % Stochastic gradient
 w_old = w;
-gvector = zeros(d,n);
-gadd = zeros(d,1);
-wrecord = w_old;
-pcent_i = 0.2;
-percent = pcent_i;
 for t = 1:maxPasses*n
-    if t/n>percent
-        fprintf('percent done %2.f%%\n',percent*100)
-        percent = percent + pcent_i;
-    end
     % Choose variable to update
     i = randi(n);
     
@@ -42,14 +33,15 @@ for t = 1:maxPasses*n
     w = w - alpha*gadd/n;
     
     if mod(t,n) == 0
-        wrecord(:,:,t/n+1) = w;
-        w = sum(wrecord,3)/(t/n);
         change = norm(w-w_old,inf);
         fprintf('Passes = %d, function = %.4e, change = %.4f\n',t/n,logisticL2_loss(w,X,y,lambdaFull),change);
         if change < progTol
             fprintf('Parameters changed by less than progTol on pass\n');
             break;
         end
+        % reset
+        gvector = zeros(d,n);
+        gadd = zeros(d,1);
         w_old = w;
     end
 end
