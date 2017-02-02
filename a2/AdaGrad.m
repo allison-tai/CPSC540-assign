@@ -23,7 +23,7 @@ for t = 1:maxPasses*n
     [f,g] = logisticL2_loss(w,X(i,:),y(i),lambda);
     
     % Choose the step-size
-    alpha = 1/(lambda*t^(0.74));%(t-t^(0.5)+1));
+    alpha = 1/(lambda*(t^(0.715)));%(t-t^(0.5)+1));
     
     % construct D
     normD = normD + g.^2;
@@ -38,11 +38,7 @@ for t = 1:maxPasses*n
         if change < progTol
             fprintf('Parameters changed by less than progTol on pass\n');
             break;
-        end
-        % reset values
-        %normD = delta*ones(d,1);
-        %D = spdiags(e./(sqrt(normD)),0,d,d);
-        
+        end        
         w_old = w;
     end
 end
