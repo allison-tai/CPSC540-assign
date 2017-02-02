@@ -1,3 +1,4 @@
+clear all
 load quantum.mat
 [n,d] = size(X);
 lambdaFull = 1;
@@ -10,6 +11,8 @@ lambda = lambdaFull/n; % The regularization parameter on one example
 L = .25*max(diag(X'*X)) + lambda;
 
 % Stochastic gradient
+gvector = zeros(d,n);
+gadd = zeros(d,1);
 w_old = w;
 for t = 1:maxPasses*n
     % Choose variable to update
