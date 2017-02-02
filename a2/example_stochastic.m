@@ -1,3 +1,4 @@
+clear all
 load quantum.mat
 [n,d] = size(X);
 lambdaFull = 1;
@@ -21,7 +22,7 @@ for t = 1:maxPasses*n
     [f,g] = logisticL2_loss(w,X(i,:),y(i),lambda);
     
     % Choose the step-size
-    alpha = 1/(lambda*(t-t^(0.5)+1));
+    alpha = 1/(lambda*t^(1.12));%(t-t^(0.5)+1)
     
     % Take the stochastic gradient step
     %grecord = [grecord; g];
