@@ -45,16 +45,19 @@ sigma=bestSigma; lambda=bestLambda;
 model = kernelRegression(X,y,bestLambda,bestSigma);
 fprintf('Optimal sigma: 1+(%1.f/60)\t Optimal lambda: 2^%2.f\nMinimum Error %f\n',(sigma-1)*60,log(lambda)/log(2),minErr);
 
-m = 40;
+m = 10;
 model1 = subsampling(Xtrain(:,i),ytrain(:,i),lambda,sigma,m);
+model2 = kitchensink(Xtrain(:,i),ytrain(:,i),lambda,sigma,m);
 
 % Test least squares model on test data
 yhat = model.predict(model,Xtest);
 yhat1 = model1.predict(model1,Xtest,m);
+yhat2 = model2.predict(model2,Xtest);
 
 % Report test error
 squaredTestError = sum((yhat-ytest).^2)/t
 squaredTestErrorsub = sum((yhat1-ytest).^2)/t
+squaredTestErrorkitchen = sum((yhat2-ytest).^2)/t
 
 
 % Plot model
@@ -65,7 +68,9 @@ plot(Xtest,ytest,'g.');
 Xhat = [min(X):.1:max(X)]'; % Choose points to evaluate the function
 yhat = model.predict(model,Xhat);
 yhat1 = model1.predict(model1,Xhat,m);
+yhat2 = model2.predict(model2,Xhat);
 kern = plot(Xhat,yhat,'r');
 sub = plot(Xhat,yhat1,'b');
+kitchen = plot(Xhat,yhat2,'g');
 ylim([-300 400]);
-legend([sub kern],'Subsampling','Kernel')
+legend([sub kern kitchen],'Subsampling','Kernel','Kitchen Sink')
