@@ -1,20 +1,21 @@
-function w = AdaGrad(X,y,delta)
+
+load quantum.mat
 [n,d] = size(X);
 lambdaFull = 1;
+L = .25*max(diag(X'*X)) + lambda;
 
 % Initialize
-maxPasses = 10;
+maxPasses = 1;
 progTol = 1e-4;
 w = zeros(d,1);
 lambda = lambdaFull/n; % The regularization parameter on one example
-w_old = w;
-
-% initialize D
-normD = delta*ones(d,1); % D(i,i) denomonator
-D = spdiags(ones(d,1)./(sqrt(normD)),0,d,d);
 
 % Stochastic gradient
+w_old = w;
+gvector = zeros(d,n);
+wrecord = w_old;
 for t = 1:maxPasses*n
+    
     % Choose variable to update
     i = randi(n);
     
@@ -22,20 +23,15 @@ for t = 1:maxPasses*n
     [f,g] = logisticL2_loss(w,X(i,:),y(i),lambda);
     
     % Choose the step-size
-    alpha = 1/(lambda*sqrt(t));%(t-t^(0.5)+1));
-    
-    % construct D
-    normD = normD + g.^2;
-    D()
-    for i=1:d 
-         normD(i) = normD(i) + g(i)^2; % update the sum
-         D(i,i) = 1/(sqrt(normD(i))); % update the diagonal
-    end
+    alpha = 1/L;
     
     % Take the stochastic gradient step
-    w = w - alpha*D*g;
+    %grecord = [grecord; g];
+    w = w - alpha*g;
     
     if mod(t,n) == 0
+        wrecord(:,:,t/n+1) = w;
+        w = sum(wrecord,3)/(t/n);
         change = norm(w-w_old,inf);
         fprintf('Passes = %d, function = %.4e, change = %.4f\n',t/n,logisticL2_loss(w,X,y,lambdaFull),change);
         if change < progTol
@@ -44,5 +40,4 @@ for t = 1:maxPasses*n
         end
         w_old = w;
     end
-end
 end

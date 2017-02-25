@@ -6,7 +6,7 @@ k = max(y);
 
 W = zeros(d,k); % Each column is a classifier
 %W(:) = findMin(@softmaxLoss,W(:),500,1,X,y,k,lambda);
-W(:) = proxGradL1(@(w) softmaxLoss(w,X,y,k),W(:),lambda,500)
+W(:) = proxGradL1(@(w) softmaxLoss(w,X,y,k),W(:),lambda,500);
 
 model.W = W;
 model.predict = @predict;

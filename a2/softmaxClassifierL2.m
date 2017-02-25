@@ -25,12 +25,14 @@ XW = X*W;
 Z = sum(exp(XW),2);
 
 ind = sub2ind([n k],[1:n]',y);
+% L^2 regularization = frobenius norm of W
 nll = -sum(XW(ind)-log(Z)) + lambda*norm(W,'fro')^2/2;
 
 g = zeros(p,k);
 for c = 1:k
     g(:,c) = X'*(exp(XW(:,c))./Z-(y == c));
 end
+% gradient modified
 g = g + lambda*W;
 g = reshape(g,[p*k 1]);
 end

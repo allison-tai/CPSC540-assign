@@ -38,7 +38,7 @@ while funEvals < maxIter
 end
 end
 
-function [w] = softThresholdg(w,Groups,threshold) % change to group norm
+function [w] = softThreshold(w,Groups,threshold) % change to group norm
     [d,k] = size(w);
     w2 = w.^2; % pre-calculate
     groupnorm = ones(size(w)); % initialize at one (avoids dividing by zero)

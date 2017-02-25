@@ -23,8 +23,8 @@ end
 % Find best value of RBF parameters,
 % training on the train set and validating on the validation set
 minErr = inf;
-for sigma = 1+[-5:0]/60 % range where sigma was found. The random validation selection restrains us from more precision
-    for lambda = 2.^[-20:-15] % as above. Note that this is right up against machine precision
+for sigma = 1+[0:0]/60 % range where sigma was found. The random validation selection restrains us from more precision
+    for lambda = 2.^[-19:-19] % as above. Note that this is right up against machine precision
         % Train on the training set
         validError=0;
         for i=1:5
@@ -55,9 +55,9 @@ yhat1 = model1.predict(model1,Xtest,m);
 yhat2 = model2.predict(model2,Xtest);
 
 % Report test error
-squaredTestError = sum((yhat-ytest).^2)/t
-squaredTestErrorsub = sum((yhat1-ytest).^2)/t
-squaredTestErrorkitchen = sum((yhat2-ytest).^2)/t
+squaredTestError10 = sum((yhat-ytest).^2)/t;
+squaredTestErrorsub10 = sum((yhat1-ytest).^2)/t;
+squaredTestErrorkitchen10 = sum((yhat2-ytest).^2)/t;
 
 
 % Plot model
@@ -69,8 +69,43 @@ Xhat = [min(X):.1:max(X)]'; % Choose points to evaluate the function
 yhat = model.predict(model,Xhat);
 yhat1 = model1.predict(model1,Xhat,m);
 yhat2 = model2.predict(model2,Xhat);
-kern = plot(Xhat,yhat,'r');
-sub = plot(Xhat,yhat1,'b');
-kitchen = plot(Xhat,yhat2,'g');
+kern = plot(Xhat,yhat,'k');
+sub = plot(Xhat,yhat1,'r');
+kitchen = plot(Xhat,yhat2,'b');
 ylim([-300 400]);
-legend([sub kern kitchen],'Subsampling','Kernel','Kitchen Sink')
+legend([kern sub kitchen],'Kernel','Subsampling','Kitchen Sink','Location','southeast')
+title('m=10')
+
+
+m = 40;
+model1 = subsampling(Xtrain(:,i),ytrain(:,i),lambda,sigma,m);
+model2 = kitchensink(Xtrain(:,i),ytrain(:,i),lambda,sigma,m);
+
+% Test least squares model on test data
+yhat = model.predict(model,Xtest);
+yhat1 = model1.predict(model1,Xtest,m);
+yhat2 = model2.predict(model2,Xtest);
+
+% Report test error
+squaredTestError40 = sum((yhat-ytest).^2)/t;
+squaredTestErrorsub40 = sum((yhat1-ytest).^2)/t;
+squaredTestErrorkitchen40 = sum((yhat2-ytest).^2)/t
+
+
+% Plot model
+figure(2);
+plot(X,y,'b.');
+hold on
+plot(Xtest,ytest,'g.');
+Xhat = [min(X):.1:max(X)]'; % Choose points to evaluate the function
+yhat = model.predict(model,Xhat);
+yhat1 = model1.predict(model1,Xhat,m);
+yhat2 = model2.predict(model2,Xhat);
+kern = plot(Xhat,yhat,'k');
+sub = plot(Xhat,yhat1,'r');
+kitchen = plot(Xhat,yhat2,'b');
+ylim([-300 400]);
+legend([kern sub kitchen],'Kernel','Subsampling','Kitchen Sink','Location','southeast')
+title('m=40')
+
+fprintf('m = 10\nkernel error: %3.f\tsubsampling error: %5.f\tkitchen error: %3.f\nm = 40\nkernel error: %3.f\tsubsampling error: %5.f\tkitchen error: %3.f\n',squaredTestError10,squaredTestErrorsub10,abs(squaredTestErrorkitchen10),squaredTestError40,squaredTestErrorsub40,abs(squaredTestErrorkitchen40))

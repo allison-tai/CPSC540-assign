@@ -1,7 +1,8 @@
 load mnist
-%Xtrain = Xtrain(1:1000,:);
+Xtrain = Xtrain(1:1000,:);
 
-model = densityBernoulli(Xtrain);
+%model = densityBernoulli(Xtrain,1);
+model = mixofBernoullis(Xtrain,1,10);
 
 nlls = model.predict(model,Xtest);
 averageNLL = sum(nlls)/size(Xtest,1)
@@ -13,3 +14,4 @@ for i = 1:4
     imagesc(reshape(samples(i,:),[28 28])');
 end
 
+%imshow(reshape(Xtrain(randi(60000),:),[28 28]))

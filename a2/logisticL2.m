@@ -9,10 +9,10 @@ d = d+1;
 w = zeros(d,1);
 
 % Optimizaion parameters
-maxPasses = 1000;
+maxPasses = 500;
 progTol = 1e-4;
-% L = .25*max(eig(X'*X)) + lambda;
-L = .25*max(diag(X'*X)) + lambda;
+Lf = .25*max(eig(X'*X)) + lambda
+Lc = .25*max(diag(X'*X)) + lambda
 
 w_old = w;
 for t = 1:maxPasses*d
