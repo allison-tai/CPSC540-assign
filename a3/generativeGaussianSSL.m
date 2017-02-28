@@ -4,79 +4,101 @@ function [ model ] = generativeGaussianSSL(X, y, Xtilde)
 k = numel(unique(y));
 
 % initialization of parameters
-Sigma = cov(X);
-mu = mean(X);
-theta = n/k;
+N = zeros(k,1);
+mu = zeros(k,d);
+Sigma = zeros(k,d,d);
+for c = 1:k
+    Xc = X;
+    N(c) = sum(y == c);
+    % only consider where data is in class c
+    Xc(y ~= c,:) = [];
+    mu(c,:) = sum(Xc)/N(c);
+    Sigma_c = zeros(d,d);
+    for i = 1:N(c)
+        Sigma_c = Sigma_c + (Xc(i,:)-mu(c))'*(Xc(i,:)-mu(c));
+    end
+    Sigma(c,:,:) = Sigma_c/N(c);
+end
+theta = N/n;
 
+model.k = k;
 model.mu = mu;
 model.theta = theta;
 model.Sigma = Sigma;
+model.N = N;
 
-model = EM(X,model);
+for i=1:10
+    model = EM(X,Xtilde,y,model);
+end
 
 model.predict = @predict;
 end
 
 function [yhat] = predict(model, Xhat)
-[t,d] = size(Xhat);
-mu = model.mu;
+[t, d] = size(Xhat);
+k = model.k;
 theta = model.theta;
-Sigma = model.Sigma
+Sigma = model.Sigma;
+mu = model.mu;
+yhat = zeros(t,1);
 
-yhat = 0;
-nlls = -sum(prod0(Xhat,repmat(log(pi'*mu),[t 1])) + prod0(1-Xhat,repmat(log(1-pi'*mu),[t 1])),2);
-end
-
-function [model] = EM(X,model)
-    %X = model.X;
-    [n d] = size(X);
-    pi = model.pi; % P(zi=c|Theta)
-    mu = model.mu; % P(xi|zi,Theta)
-    % E-step
-    Li = log(pi)+log(mu)*X'+log(1-mu)*(1-X');
-    %Li = logprod(pi,1)+logprod(mu,X')+logprod(1-mu,1-X');
-    if max(max(isnan(Li)))==1
-        model.Li=Li
-        error('Li = nan')
+% calculate probability of each classification
+y_prob = zeros(t,k);
+for i = 1:t
+    for c = 1:k
+        Sigma_c = squeeze(Sigma(c,:,:));
+        ldSigma = logdet((Sigma_c));
+        y_prob(i,c) = log(theta(c)) - (d/2)*log(2*pi) - 0.5*ldSigma - ...
+            0.5*((Xhat(i,:)-mu(c))*Sigma_c^(-1)*(Xhat(i,:)-mu(c))');
     end
-    logri = Li-log(sum(exp(Li)));
-    logri(find(logri==Inf))=-Inf; % correct incidents where Li=0
-    model.logri = logri;
-    max(max(isnan(Li)==1)); 
-    ri = exp(logri);
-    % M-step
-    Nc = sum(ri,2);
-    %mu = (ri*X)./(Nc);
-    %mu(find(Nc==0),:)=0;
-    %model.mu = (ri*X+1/60000)./(Nc+N/60000);
-    model.mu = (ri*X+alpha)./(Nc+N*alpha);
-    pi = (Nc+alpha)/sum(Nc+alpha);
-    %pi = (Nc+alpha)/sum(Nc+alpha);
-    model.pi = pi;
+    [M, yhat(i)] = max(y_prob(i,:));
+end
 end
 
-
-
-    %for n=1:N
-    %    zsum = 0;
-    %    for k=1:K
-    %        if max(mu(k,:))==1 || min(mu(k,:))==0
-    %            break
-    %        end
-    %        logz(n,k)= log(pi(k))+sum(log(mu(k,:)).*(X(n,:))+log(1-mu(k,:)).*(1-X(n,:)));
-    %    end
-    %    if zsum ~= 0 % get rid of NaN
-    %        z(n,:) = z(n,:)/zsum;
-    %    end
-    %end
-
-    %for i=1:K
-     %   if pi(i)~=0
-      %      for j=1:D
-       %         if mu(i,j)~=0
-        %            Li(i,j) = log(pi(i))+log(mu)*X';
-         %           logri(i,j) = log(exp(Li))-log(sum(exp(Li)));
-          %          ri(i,j) = exp(logri);
-           %     end
-            %end
-        %end
+function [model] = EM(X,Xtilde,y,model)
+    %X = model.X;
+    [n, d] = size(X);
+    [t, d] = size(Xtilde);
+    k = model.k;
+    
+    N = model.N;
+    mu_t = model.mu;
+    theta = model.theta;
+    Sigma = model.Sigma;
+   
+    ri = zeros(t,k);
+    % E-step: calculate rc^i
+    for i = 1:t
+        ri_u = zeros(1,k);
+        for c = 1:k
+            Sigma_c = squeeze(Sigma(c,:,:));
+            ri_u(c) = gaussian(Xtilde(i,:),d,Sigma_c,mu_t(c),theta(c));
+        end
+        ri(i,:) = ri_u./sum(ri_u);
+    end
+    r = sum(ri);
+    
+    mu = mu_t;
+    % M-step
+    for c = 1:k
+        Xc = X;
+        % only consider where data is in class c
+        Xc(y ~= c,:) = [];
+        theta(c) = (N(c) + r(c))/(n + t);
+        mu(c,:) = (sum(Xc));
+        Sigma_c = squeeze(Sigma(c,:,:));
+        for i = 1:N(c)
+            Sigma_c = Sigma_c + (Xc(i,:)-mu_t(c))'*(Xc(i,:)-mu_t(c));
+        end
+        for i = 1:t
+            Sigma_c = Sigma_c + ri(i,c)*(Xtilde(i,:)-mu_t(c))'*(Xtilde(i,:)-mu_t(c));
+        end
+        Sigma(c,:,:) = Sigma_c/(N(c) + r(c));
+    end
+    mu = mu + (ri'*Xtilde);
+    mu = mu./(N(c) + r(c));
+    
+    model.theta = theta;
+    model.mu = mu;
+    model.Sigma = Sigma;
+end

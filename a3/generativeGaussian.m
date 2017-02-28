@@ -43,7 +43,7 @@ for i = 1:t
         Sigma_c = squeeze(Sigma(c,:,:));
         ldSigma = logdet((Sigma_c));
         Y_prob(i,c) = log(theta(c)) - (d/2)*log(2*pi) - 0.5*ldSigma - ...
-            0.5*((Xhat(i,:)-mu(c))*inv(Sigma_c)*(Xhat(i,:)-mu(c))');
+            0.5*((Xhat(i,:)-mu(c))*Sigma_c^(-1)*(Xhat(i,:)-mu(c))');
     end
     [M, Yhat(i)] = max(Y_prob(i,:));
 end
