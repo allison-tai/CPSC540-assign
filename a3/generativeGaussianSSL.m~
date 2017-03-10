@@ -76,9 +76,7 @@ function [model] = EM(X,Xtilde,y,model)
             Sigma_c = squeeze(Sigma(c,:,:));
             ri_u(c) = gaussian(Xtilde(i,:),d,Sigma_c,mu_t(c,:),theta(c));
         end
-        %ri(i,:) = ri_u/sum(ri_u); % soft
-        [M c] = max(ri_u); % hard
-        ri(i,c) = 1; %hard
+        ri(i,:) = ri_u/sum(ri_u);
     end
     r = sum(ri)';
     
