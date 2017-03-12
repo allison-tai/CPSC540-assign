@@ -34,6 +34,6 @@ if isempty(ind)
 else
     p1 = alpha + counts(ind);
 end
-p1/(p0+p1)
+p1/(p0+p1);
 ysample = rand < p1/(p0+p1);
 end
