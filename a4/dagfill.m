@@ -2,7 +2,7 @@ clear all
 load MNIST_images.mat
 m = size(X,1);
 n = size(X,3);
-N = 3; M = N-1; % NxN DAG train
+N = 4; M = N-1; % NxN DAG train
 
 % Train an inhomogeneous markov chain on first three columns
 m_i = zeros(1,m); % starting distribution

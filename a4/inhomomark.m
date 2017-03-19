@@ -4,9 +4,8 @@ m = size(X,1);
 n = size(X,3);
 
 % Train an inhomogeneous markov chain
-m_i = zeros(1,m);
+m_i = zeros(1,m); % starting distribution
 p_ij = zeros(m-1,m,2);
-p0_ij = zeros(m-1,m);
 for j = 1:m
     m_i(j) = sum(X(1,j,:))/n;
     for i = 1:m-1
@@ -19,9 +18,6 @@ for j = 1:m
         p_ij(i,j,2) = sum(X1(2,:) == 1)/max(n1,1);
     end
 end
-
-%figure(1);
-%imagesc(p_ij);
 
 % Fill-in some random test images
 t = size(Xtest,3);
