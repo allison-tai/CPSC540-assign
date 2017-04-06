@@ -12,7 +12,7 @@ M(d,:) = [1 0];
 % being in state 2)
 y = zeros(n,d);
 for j=d-1:-1:1
-    M(j,:) = M(j+1,:)*pT(:,:,j);
+    M(j,:) = M(j+1,:)*pT(:,:,j)';
     % normalize
     M(j,:) = M(j,:)/sum(M(j,:),2);
     % sample

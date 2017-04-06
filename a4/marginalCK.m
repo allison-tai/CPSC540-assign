@@ -8,6 +8,6 @@ p = p0';
 yOdds(1) = p(2);
 for i=1:nNodes-1
     p = pT(:,:,i)'*p;
-    yOdds(i+1) = p(2)+1;
+    yOdds(i+1) = p(2);
 end
 end

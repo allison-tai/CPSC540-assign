@@ -27,10 +27,13 @@ model.theta = theta;
 model.Sigma = Sigma;
 model.N = N;
 
-for i=1:5
-    model = EM(X,Xtilde,y,model);
-    theta = model.theta;
-    max(theta)
+delta = Inf; Lold = -Inf; counter = 0;
+while delta>1 % until sufficiently close to maximum
+    [model L] = EM(X,Xtilde,y,model);
+    delta = L-Lold;
+    Lold = L;
+    counter = counter + 1;
+    fprintf('run %2.f:\tdelta = %1.3f\n',counter,delta)
 end
 
 model.predict = @predict;
@@ -57,8 +60,7 @@ for i = 1:t
 end
 end
 
-function [model] = EM(X,Xtilde,y,model)
-    %X = model.X;
+function [model L] = EM(X,Xtilde,y,model)
     [n, d] = size(X);
     [t, d] = size(Xtilde);
     k = model.k;
@@ -76,28 +78,35 @@ function [model] = EM(X,Xtilde,y,model)
             Sigma_c = squeeze(Sigma(c,:,:));
             ri_u(c) = gaussian(Xtilde(i,:),d,Sigma_c,mu_t(c,:),theta(c));
         end
-        %ri(i,:) = ri_u/sum(ri_u); % soft
-        [M c] = max(ri_u); % hard
-        ri(i,c) = 1; %hard
+        ri(i,:) = ri_u/sum(ri_u); % soft
+        %[M c] = max(ri_u); % hard
+        %ri(i,c) = 1; %hard
     end
     r = sum(ri)';
     
     mu = mu_t;
     % M-step
+    L = 0;
     for c = 1:k
         Xc = X;
         % only consider where data is in class c
         Xc(y ~= c,:) = [];
-        theta(c) = (N(c) + r(c))/(n + t);
         mu(c,:) = (sum(Xc));
-        Sigma_c = zeros(d,d);
-        %Sigma_c = squeeze(Sigma(c,:,:));
+        Sigma_c = zeros(d,d);            
+        Sigmatc = squeeze(Sigma(c,:,:));
+        ldSigma = logdet((Sigmatc));
+        Sigmainv = Sigmatc^(-1);
         for i = 1:N(c)
             Sigma_c = Sigma_c + (Xc(i,:)-mu_t(c,:))'*(Xc(i,:)-mu_t(c,:));
+            L = L + log(theta(c)) - (d/2)*log(2*pi) - 0.5*ldSigma - ...
+                0.5*((Xc(i,:)-mu_t(c,:))*Sigmainv*(Xc(i,:)-mu_t(c,:))');
         end
         for i = 1:t
             Sigma_c = Sigma_c + ri(i,c)*(Xtilde(i,:)-mu_t(c,:))'*(Xtilde(i,:)-mu_t(c,:));
+            L = L + ri(i,c)*(log(theta(c)) - (d/2)*log(2*pi) - 0.5*ldSigma - ...
+                0.5*((Xtilde(i,:)-mu_t(c,:))*Sigmainv*(Xtilde(i,:)-mu_t(c,:))'));       
         end
+        theta(c) = (N(c) + r(c))/(n + t);
         Sigma(c,:,:) = Sigma_c/(N(c) + r(c));
     end
     mu = (mu + ri'*Xtilde)./(N + r);
