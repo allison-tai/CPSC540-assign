@@ -15,7 +15,7 @@ edgeStruct = UGM_makeEdgeStruct(adj,k);
 
 %% Choose parameter tieing scheme
 ising = 0; % Don't use Ising potentials
-tied = 1; % Use tied node/edge parameters
+tied = 0; % Use tied node/edge parameters
 [nodeMap,edgeMap,w] = UGM_makeMRFmaps(edgeStruct,ising,tied);
 
 %% Compute sufficient statistics
