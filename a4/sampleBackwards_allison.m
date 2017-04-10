@@ -1,4 +1,4 @@
-function [yOdds yCond] = sampleBackwards(p0,pT)
+function [yOdds yCond] = sampleBackwards3(p0,pT)
 
 % Set up our DP table
 d = size(pT,3)+1;

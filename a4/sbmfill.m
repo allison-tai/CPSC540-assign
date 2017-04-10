@@ -4,12 +4,13 @@ m = size(X,1);
 n = size(X,3);
 N = 4; M = N-1; % NxN DAG train
 
-% train NxN DAG
 models = cell(m,m,3);
+% train
 for j = 1:m
     for i = 1:m
         X0 = X(1:i,1:j,:);
         X0 = reshape(X0(:,:,:),i*j,n)';
+        %X0 = sparse(reshape(X0(:,:,:),i*j,n)');
         Xij = X0(:,1:i*j-1);
         yij = X0(:,i*j);
         % logistic regression needs {-1,1} encoding instead of {0,1} encoding
@@ -40,7 +41,12 @@ for image = 1:4
                 Xhat = Zhat(1:i*j-1);
                 model = cell2struct(models(i,j,:),...
                         {'w','predict','sample'},3);
-                I(i,j) = model.sample(model,Xhat);
+                yhat = model.sample(model,Xhat);
+                if yhat == -1
+                    I(i,j) = 0;
+                elseif yhat == 1
+                    I(i,j) = 1;
+                end
             end
         end
     end

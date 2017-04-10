@@ -11,10 +11,11 @@ if isnan(averageNLL)==1 % stop opening figures
     error('averageNLL == NaN')
 end
 
-[samples plots] = model.sample(model,9);
+%[samples plots] = model.sample(model,9);
+[samples] = model.sample(model,9);
 figure(1);
-for i = 1:4
-    subplot(2,2,i);
+for i = 1:9
+    subplot(3,3,i);
     imagesc(reshape(samples(i,:),[28 28])');
 end
 figure(2)
