@@ -6,8 +6,8 @@ bestSigma = 1;
 bestLambda = 1;
 bestNLL = inf;
 for degree = 1:10
-    for sigma = logspace(0,5,6)
-        for lambda = logspace(0,5,6)
+    for sigma = logspace(-5,5,11)
+        for lambda = logspace(-5,5,11)
             nll = NLL(degree,X,y,sigma,lambda);
             if nll < bestNLL
                 bestNLL = nll;
