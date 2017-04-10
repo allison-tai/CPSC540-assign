@@ -1,28 +1,42 @@
 function [model] = leastSquaresEmpiricalBayes(X, y)
 
-% grid search
-degree = linspace(1,10,10);
-sigma = [1, 10, 100, 1000, 1e4, 1e5];
-lambda = [1, 10, 100, 1000, 1e4, 1e5];
-[D, S, L] = ndgrid(degree, sigma, lambda);
-
-nll = arrayfun(@(p1,p2,p3) NLL(p1,X,y,p2,p3), D, S, L); 
-[minval, minidx] = min(nll);
-bestDegree = D(minidx);
-bestSigma = S(minidx);
-bestLambda = L(minidx);
+% param search
+bestDegree = 1;
+bestSigma = 1;
+bestLambda = 1;
+bestNLL = inf;
+for degree = 1:10
+    for sigma = logspace(0,5,6)
+        for lambda = logspace(0,5,6)
+            nll = NLL(degree,X,y,sigma,lambda);
+            if nll < bestNLL
+                bestNLL = nll;
+                bestLambda = lambda;
+                bestSigma = sigma;
+                bestDegree = degree;
+            end
+        end
+    end
+end
 
 % construct basis
 Xpoly = polyBasis(X, bestDegree);
+[n,d] = size(Xpoly);
+XSig = Xpoly'*(eye(n)/bestSigma^2);
 
-% Calculate w using Empirical Bayes
-w = (Xpoly'*Xpoly)\Xpoly'*y;
+% Solve for w
+w = (XSig*Xpoly + bestLambda*eye(d))\XSig*y;
 
 model.w = w;
 model.lambda = bestLambda;
 model.sigma = bestSigma;
 model.degree = bestDegree;
 model.predict = @predict;
+end
+
+function [yhat] = predict(model, Xtest)
+Xpoly = polyBasis(Xtest,model.degree);
+yhat = Xpoly*model.w;
 end
 
 function [Xpoly] = polyBasis(X,m)
@@ -41,5 +55,5 @@ Xpoly = polyBasis(X, m);
 C = eye(n)/(sigma^2) + (Xpoly*Xpoly')/lambda;
 % calculate NLL
 v = C\y;
-nll = logdet(C) + y'*v;
+nll = logdet(C, inf) + y'*v;
 end

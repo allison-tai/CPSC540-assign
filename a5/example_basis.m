@@ -14,6 +14,11 @@ load basisData.mat % Loads X and y
 % Fit least-squares empirical Bayes model
 model = leastSquaresEmpiricalBayes(X,y);
 
+% Print best values
+fprintf('sigma = %d\n', model.sigma);
+fprintf('lambda = %d\n', model.lambda);
+fprintf('degree = %d\n', model.degree);
+
 % Compute training error
 yhat = model.predict(model,X);
 trainError = sum((yhat - y).^2)/n;
