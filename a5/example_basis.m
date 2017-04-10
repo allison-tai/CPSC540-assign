@@ -8,8 +8,11 @@ load basisData.mat % Loads X and y
 [n,d] = size(X);
 
 % Fit least-squares model
-degree = 2;
-model = leastSquaresBasis(X,y,degree);
+% degree = 2;
+% model = leastSquaresBasis(X,y,degree);
+
+% Fit least-squares empirical Bayes model
+model = leastSquaresEmpiricalBayes(X,y);
 
 % Compute training error
 yhat = model.predict(model,X);

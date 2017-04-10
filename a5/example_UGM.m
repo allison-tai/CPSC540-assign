@@ -10,12 +10,14 @@ k = 10; % We have 10 digits
 p_11 = sum(X(:,1)==1)/n
 
 %% Make Adjacency Matrix and EdgeStruct
-adj = zeros(d); % First lets try an empty adjacency matrix
+% adj = zeros(d); % First lets try an empty adjacency matrix
+% adj = [0 1 0 0; 1 0 1 0; 0 1 0 1; 0 0 1 0]; % chain structure dependency
+adj = [0 1 1 1; 1 0 1 1; 1 1 0 1; 1 1 1 0]; % complete graph
 edgeStruct = UGM_makeEdgeStruct(adj,k);
 
 %% Choose parameter tieing scheme
 ising = 0; % Don't use Ising potentials
-tied = 1; % Use tied node/edge parameters
+tied = 0; % Use tied node/edge parameters
 [nodeMap,edgeMap,w] = UGM_makeMRFmaps(edgeStruct,ising,tied);
 
 %% Compute sufficient statistics

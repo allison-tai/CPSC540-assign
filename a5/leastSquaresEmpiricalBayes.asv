@@ -1,0 +1,70 @@
+function [model] = leastSquaresEmpiricalBayes(X, y)
+
+% grid search
+degree = linspace(1,10,10);
+sigma = [1, 10, 100, 1000, 1e4, 1e5];
+lambda = [1, 10, 100, 1000, 1e4, 1e5];
+[d, s, l] = ndgrid(degree, sigma, lambda);
+
+
+% parameter search
+for degree = 1:10
+    % construct basis
+    Xpoly = polyBasis(X,degree);
+    % calculate ml
+    nll = NLL(Xpoly, y, sigma, lambda);
+%     if ml < bestML
+%         bestML = ml;
+%         bestDegree = degree;
+%         bestBasis = Xpoly;
+%     end
+% end
+% Xpoly = bestBasis;
+% degree = bestDegree;
+% 
+% while sigma <= 10000
+%    ml = NLL(Xpoly, y, sigma, lambda);
+%    if ml < bestML
+%        bestML = ml;
+%        bestSigma = sigma;
+%    end
+%    sigma = sigma*10;
+% end
+% sigma = bestSigma;
+% 
+% while lambda <= 10000
+%     ml = NLL(Xpoly, y, sigma, lambda);
+%     if ml < bestML
+%         bestML = ml;
+%         bestLambda = lambda;
+%     end
+%     lambda = lambda*10;
+% end
+% lambda = bestLambda;
+
+% Calculate w using Empirical Bayes
+% w = (Xpoly'*Xpoly)\Xpoly'*y;
+
+model.w = w;
+model.lambda = lambda;
+model.sigma = sigma;
+model.degree = degree;
+model.predict = @predict;
+end
+
+function [Xpoly] = polyBasis(X,m)
+n = length(X);
+Xpoly = zeros(n,m+1);
+for i = 0:m
+    Xpoly(:,i+1) = X.^i;
+end
+end
+
+function [nll] = NLL(Xpoly, y, sigma, lambda)
+% cost function
+[n, d] = size(Xpoly);
+C = eye(n)/(sigma^2) + (Xpoly*Xpoly')/lambda;
+% calculate NLL
+v = C\y;
+ml = log(det(C)) + y'*v;
+end
