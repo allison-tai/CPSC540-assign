@@ -11,3 +11,5 @@ for i = 1:n
     end
 end
 
+% need to minimize gamma.*cost+entropy(gamma);
+       
