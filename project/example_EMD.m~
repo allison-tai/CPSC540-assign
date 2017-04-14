@@ -35,7 +35,7 @@ tol = 0.5; lambda = 5;
 
 % find optimal match
 [Cmin xi] = min(C); 
-fprintf('Error (transportation cost) is %.3f\n',Cmin)
+fprintf('Error (transportation cost) is ',Cmin)
 figure(1)
 subplot(2,1,1);
 imshow(X(:,:,xi)) % show match

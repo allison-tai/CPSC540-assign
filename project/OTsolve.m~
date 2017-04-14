@@ -2,12 +2,15 @@ function [C gamma] = OTsolve(cost,x,y,tol,lambda)
     %OTSOLVE Solves for the regularized optimal transport between vectors x and
     %multiple vectors contained in y.
     
-    n = length(x);
     % normalize
-    x = x/sum(x);
-    y = y./sum(y);
-
-    % apply sk from negentropy paper
+    if sum(x) ~= 1
+        x = x/sum(x);
+    end
+    if sum(y) ~= ones(1,size(y,2))
+        y = y./sum(y);
+    end
+    n = length(x);
+    % from negentropy paper
     I = (x>0);
     x = x(I); cost = cost(I,:); K = exp(-lambda*cost);
     u = ones(length(x),size(y,2))/length(x);
@@ -19,13 +22,13 @@ function [C gamma] = OTsolve(cost,x,y,tol,lambda)
     end
     v = y./(K'*u);
     C = sum(u.*((K.*cost)*v));
-
+    % reconstruct u
+    u1 = zeros(n,size(y,2));
+    u1(I==1) = u;
     % construct gamma (diffusion)
     gamma = zeros(n,size(y,1),size(y,2));
     for i = 1:size(y,2)
-        du = diag(u(:,i));
-        dv = diag(v(:,i));
-        gamma(find(I),:,i) = du*K*dv; % includes empty indices
-    end
+        du = diag(u(i,:));
+        gamma(:,:,i) = 
 end
 
