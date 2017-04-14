@@ -1,6 +1,6 @@
 load MNIST_images.mat
 
-n = 400; % smaller array for computation speed
+n = 100; % smaller array for computation speed
 X = X(:,:,randsample(size(X,3),n)); % random
 
 cost = zeros(n,n);
