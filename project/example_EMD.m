@@ -18,10 +18,12 @@ X = X(:,:,Isamples); samplabel = labels(Isamples); % random
 n = size(X,2);
 
 % convolve
-for i=1:samples
-    Xc(:,:,i) = convolve(X(:,:,i),filter,1);
-end
-Xctest = convolve(Xtest(:,:),filter,1);
+%for i=1:samples
+%    Xc(:,:,i) = convolve(X(:,:,i),filter,1);
+%end
+%Xctest = convolve(Xtest(:,:),filter,1);
+Xctest = Xtest;
+Xc = X;
 
 [n m] = size(Xctest);
 % build cost matrix
@@ -38,7 +40,7 @@ cij = cost(dist);
 % vectorize inputs and solve transportation
 x = reshape(Xctest,[n*m 1]); 
 y = squeeze(reshape(Xc,[n*m 1 samples]));
-tol = 0.5; lambda = 5;
+tol = 0.5; lambda = 1;
 [C gamma] = OTsolve(cij,x,y,tol,lambda);
 
 % find optimal match
