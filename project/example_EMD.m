@@ -11,11 +11,14 @@ filter = [1 0; 0 0];
 Itest = randi(size(X,3));
 Xtest = X(:,:,Itest); labeltest = labels(Itest);
 
-% get random sample data
-samples = 30;
-Isamples = randsample(size(X,3),samples);
-X = X(:,:,Isamples); samplabel = labels(Isamples); % random
-n = size(X,2);
+% get random sample data for each number
+samples = 3;
+Isamples = []; %indices
+for i = 0:9
+    I = find(labels==i);
+    Isamples = [Isamples; I(randsample(length(I),samples))];
+end
+X = X(:,:,Isamples); samplabel = Isamples; % random
 
 % convolve
 %for i=1:samples
@@ -39,20 +42,20 @@ cij = cost(dist);
 
 % vectorize inputs and solve transportation
 x = reshape(Xctest,[n*m 1]); 
-y = squeeze(reshape(Xc,[n*m 1 samples]));
+y = squeeze(reshape(Xc,[n*m 1 samples*10]));
 tol = 0.5; lambda = 1;
-[C gamma] = OTsolve(cij,x,y,tol,lambda);
 
+[C gamma] = OTsolve(cij,x,y,tol,lambda);
 % find optimal match
 [Cmin xi] = min(C); 
+
+% individual case
 fprintf('Error (transportation cost) is %.3f\n',Cmin)
 figure(1)
 subplot(2,1,1);
 imshow(X(:,:,xi)) % show match
 subplot(2,1,2);
 imshow(Xtest) % show test
-
-
 
 function cij = cost(dist)
     cij = dist;
