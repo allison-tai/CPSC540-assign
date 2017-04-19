@@ -4,7 +4,7 @@ load MNIST.mat
 X = images;
 
 % thing to convolve
-filter = [0 -1 0; -1 0 1; 0 1 0];
+filter = [1];
 %filter = [1 0; 0 0];
 
 % get random test data
@@ -12,13 +12,8 @@ Itest = randi(size(X,3));
 Xtest = X(:,:,Itest); labeltest = labels(Itest);
 
 % get random sample data for each number
-samples = 3;
-Isamples = []; %indices
-for i = 0:9
-    I = find(labels==i);
-    Isamples = [Isamples I(randsample(length(I),samples))];
-end
-X = X(:,:,Isamples); samplabel = Isamples; % random
+samples = 3; % 3 samples of each number
+[X samplabel] = sampleMNIST(n,images,labels);
 
 
 % convolve
@@ -43,7 +38,7 @@ cij = cost(dist);
 % vectorize inputs and solve transportation
 x = reshape(Xctest,[n*m 1]); 
 y = squeeze(reshape(Xc,[n*m 1 samples*10]));
-tol = 0.5; lambda = 1;
+tol = 0.1; lambda = 1.5;
 
 [C gamma] = OTsolve(cij,x,y,tol,lambda);
 % find optimal match
