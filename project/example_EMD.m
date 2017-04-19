@@ -5,7 +5,7 @@ X = images;
 
 % thing to convolve
 filter = [0 -1 0; -1 0 1; 0 1 0];
-filter = [1 0; 0 0];
+%filter = [1 0; 0 0];
 
 % get random test data
 Itest = randi(size(X,3));
@@ -16,17 +16,17 @@ samples = 3;
 Isamples = []; %indices
 for i = 0:9
     I = find(labels==i);
-    Isamples = [Isamples; I(randsample(length(I),samples))];
+    Isamples = [Isamples I(randsample(length(I),samples))];
 end
 X = X(:,:,Isamples); samplabel = Isamples; % random
 
+
 % convolve
-%for i=1:samples
-%    Xc(:,:,i) = convolve(X(:,:,i),filter,1);
-%end
-%Xctest = convolve(Xtest(:,:),filter,1);
-Xctest = Xtest;
-Xc = X;
+Xc = [];
+for i=1:samples*10
+    Xc(:,:,i) = convolve(X(:,:,i),filter,1);
+end
+Xctest = convolve(Xtest(:,:),filter,1);
 
 [n m] = size(Xctest);
 % build cost matrix
@@ -47,6 +47,7 @@ tol = 0.5; lambda = 1;
 
 [C gamma] = OTsolve(cij,x,y,tol,lambda);
 % find optimal match
+P = 1./C;
 [Cmin xi] = min(C); 
 
 % individual case
@@ -56,6 +57,8 @@ subplot(2,1,1);
 imshow(X(:,:,xi)) % show match
 subplot(2,1,2);
 imshow(Xtest) % show test
+pause(1)
+close
 
 function cij = cost(dist)
     cij = dist;
