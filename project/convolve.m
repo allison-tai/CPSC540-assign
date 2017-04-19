@@ -1,6 +1,5 @@
 function [ imgfilt ] = convolve(img,filter,stride)
-%CONVOLVE Summary of this function goes here
-%   Detailed explanation goes here
+%CONVOLVE Convolves img with filter, with stride
     [m n] = size(filter);
     [M N] = size(img);
     mu = floor(M-m+1/stride);
