@@ -1,4 +1,4 @@
-function [xnew] = pixelTrans(gamma, x, n)k
+function [xnew] = pixelTrans(gamma, x, n)
 % translates pixels of x by average move
 
 [g1,g2,g3] = size(gamma);
