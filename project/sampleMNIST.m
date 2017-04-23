@@ -1,12 +1,12 @@
-function [image label] = sampleMNIST(n,images,labels)
-%SAMPLEMNIST gets n random representations of each number 0-10 in the MNIST dataset 
+function [image label] = sampleMNIST(n,images,labels,Index)
+%SAMPLEMNIST gets n random representations of each number in Index in the MNIST dataset 
     Isamples = []; %indices
-    for i = 0:9
+    for i = Index
         I = find(labels==i);
         Isamples = [Isamples I(randsample(length(I),n))];
     end
     image = images(:,:,Isamples); 
     label = labels(Isamples); 
-    label = reshape(label,[10*n 1]);
+    label = reshape(label,[length(Index)*n 1]);
 end
 

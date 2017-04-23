@@ -2,16 +2,15 @@ clear all
 load MNIST.mat
 
 concavses = []; convexses = []; distses = [];
-lambdastore = [];
 convexmean = []; concavmean = []; distmean = [];
 convexerror = []; concaverror = []; disterror = [];
-N = 30;
 var = [];
-for index = -5:6
+N = 150;
+for index = 0:4
 for i = 1:N
 X = images;
-n = 0.3; % number of random samples/10
-ntest = 3.3; % number of total samples
+n = index; % number of random samples/10
+ntest = 10; % number of total samples
 
 % random samples
 I = randsample(size(X,3),n*10);
@@ -29,10 +28,10 @@ n=ntest;
 
 Itest = []; I = [];
 for i=0:9
-    I = [I sum(find(Xlabels==i))];
-    Itest = [Itest sum(find(testlabels==i))];
+    I = [I length(find(Xlabels==i))];
+    Itest = [Itest length(find(testlabels==i))];
 end
-var = [var norm(I-Itest,1)];
+var = [var norm(I-Itest,1)/2];
 
 dist = [];
 for i = 1:ntest*10
@@ -59,19 +58,25 @@ concavses = [concavses sum(testlabels(yi)==Xlabels)/(ntest*10)*100];
 [conf yi] = max(gamma');
 convexses = [convexses sum(testlabels(yi)==Xlabels)/(ntest*10)*100];
 end
-lambdastore = [lambdastore lambda];
-convexmean = [convexmean mean(convexses)]; concavmean = [concavmean mean(concavses)];
-distmean = [distmean mean(distses)];
-convexerror = [convexerror std(convexses)/sqrt(N)];
-concaverror = [concaverror std(concavses)/sqrt(N)];
-disterror = [disterror std(distses)/sqrt(N)];
-convexses = []; concavses = []; distses = [];
 end
-
-figure; hold on; x = lambdastore; y = convexmean; err = convexerror;
+x = [];
+for i = 0:max(var)
+    I = find(var==i);
+    N = sqrt(length(I));
+    if length(I)>1
+        x = [x 100-i/(ntest)*10];
+        convexmean = [convexmean mean(convexses(I))];
+        convexerror = [convexerror std(convexses(I))/N];
+        distmean = [distmean mean(distses(I))];
+        disterror = [disterror std(distses(I))/N];
+        concavmean = [concavmean mean(concavses(I))];
+        concaverror = [concaverror std(concavses(I))/N];
+    end
+end
+figure; hold on; y = convexmean; err = convexerror;
 set(gca,'FontSize', 20);
-title('Concave vs. Convex cost against \lambda');
-xlabel('\lambda'); ylabel('% Accuracy');
+title('Concave vs. Convex cost against Similarity');
+xlabel('% Similarity'); ylabel('% Accuracy');
 axis([-Inf Inf 0 100])
 patch([x fliplr(x)],[y+err fliplr(y-err)],[0.9 0.7 0.7],'EdgeColor','none','FaceAlpha',.5);
 convex = plot(x,y,'r.-');
