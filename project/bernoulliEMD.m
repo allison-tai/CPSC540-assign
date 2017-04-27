@@ -12,13 +12,14 @@ for i=1:m*n
         dist(i,j) = sqrt((ceil(i/n)-ceil(j/n))^2+(mod(i,n)-mod(j,n))^2);
     end
 end
+% keep track of success
 correct = [];
 correctstd = [];
-for models = 3:2:9
-correct2 = 0;
-%models = 15;
-[X samplabel pi] = bernoullimodel(images,labels,1000,models);
-pi = reshape(pi,[1 models*10]);
+
+for models = 2:2:10 % analyze method
+correct2 = 0; % counter
+[X samplabel pi] = bernoullimodel(images,labels,1000,models); % obtain samples 
+pi = reshape(pi,[1 models*10]); % weights of samples
 X = reshape(X,[28 28 models*10]); samplabel = reshape(samplabel,[models*10 1]);
 fprintf('Number of models:\t %2d \n',models)
 for i=1:N
@@ -34,7 +35,7 @@ tol = 0.1; lambda = 1;
 
 [C gamma] = OTsolve(dist,x,y,tol,lambda);
 % find optimal match
-[Cmin xi] = min(C.*pi); 
+[Cmin xi] = min(C); % works better than weighting by pi (this just penalizes numbers with even pi values)
 if samplabel(xi)==labeltest
     correct2 = correct2+1;
 end
@@ -46,9 +47,10 @@ for i=0:9
 end
 [Cmin index] = min(Cost);
 
+
+
 end
 correct = [correct correct2/N];
-
 fprintf('EMD accuracy:\t %2.f %%\n',correct2/N*100)
 pause(2)
 end
@@ -56,14 +58,13 @@ end
 
 
 return
+figure(1)
+imshow(Xtest) % show test
+samplabel(xi)==labeltest
+pause(1)
 % individual case
 % plot
 fprintf('Error (transportation cost) is %.3f\nMin cost correct? %d\n',Cmin,labeltest==samplabel(xi))
 fprintf('Weighted average correct? %d\n',labeltest==index-1)
-figure(1)
-subplot(2,1,1);
-imshow(X(:,:,xi)) % show match
-subplot(2,1,2);
-imshow(Xtest) % show test
-pause
+
 close
