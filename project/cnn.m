@@ -7,9 +7,9 @@ function filterold = cnn(cost,X,Y,Xlabels,Ylabels)
 filterold = zeros(3,3); filterold(2,2)=1; % initialize identity convolution
 
 % parameters
-epsilon = 0.5*ones(3); % numerical approximation step size
-alpha = 0.1; % gradient descent step size
-tol = 0; % update precision
+epsilon = 0.001*ones(3); % numerical approximation step size
+alpha = 0.2; % gradient descent step size
+tol = 0.001; % update precision
 
 i=1; I = 1:9; % initialize counter and possible steps
 
@@ -51,8 +51,10 @@ while 1
     
     
     if new_loss<old_loss-tol
+        -new_loss+old_loss
         % gradient descent
-        filterold(ei) = filterold(ei)-alpha*max(new_loss-old_loss,-0.5)/epsilon(ei);
+        filterold(ei) = filterold(ei)-alpha*max(new_loss-old_loss,-abs(epsilon(ei)))/epsilon(ei);
+        fprintf('Changing index %d %d',ceil(ei/3),mod(ei,3))
         i = 1; I = 1:9; % reset counter, array
         % update variables
         old_loss = new_loss;
@@ -78,6 +80,6 @@ function loss = loss(c0,Xlabels,Ylabels)
     for i=0:9
         I = find(Xlabels==i);
         J = find(Ylabels==i);
-        loss = loss - sum(sum(c0(I,J)))/N;
+        loss = loss + sum(sum(c0(I,J)))/N;
     end
 end
