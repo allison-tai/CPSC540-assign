@@ -1,7 +1,7 @@
-load MNIST.mat
+load transMNIST.mat
 % earthmover distance for computer vision example
 
-X = images;
+X = transImages;
 
 % thing to convolve
 filter = [1];
@@ -13,7 +13,8 @@ Xtest = X(:,:,Itest); labeltest = labels(Itest);
 
 % get random sample data for each number
 samples = 3; % 3 samples of each number
-[X samplabel] = sampleMNIST(n,images,labels);
+index = 0:9;
+[X samplabel] = sampleMNIST(n,transImages,labels, index);
 
 
 % convolve
@@ -33,18 +34,20 @@ for i=1:n*m
         dist(i,j) = sqrt((ceil(i/n)-ceil(j/n))^2+(mod(i,n)-mod(j,n))^2);
     end
 end
-cij = cost(dist);
+cij = dist;
 
 % vectorize inputs and solve transportation
-x = reshape(Xctest,[n*m 1]); 
+x = reshape(Xctest,[n*m 1]);
 y = squeeze(reshape(Xc,[n*m 1 samples*10]));
 tol = 0.1; lambda = 1.5;
 
+% run OT and solve for best
 [C gamma] = OTsolve(cij,x,y,tol,lambda);
+
 % find optimal match
 P = 1./C;
 [Cmin xi] = min(C); 
-
+ 
 % individual case
 fprintf('Error (transportation cost) is %.3f\n',Cmin)
 figure(1)
@@ -55,6 +58,6 @@ imshow(Xtest) % show test
 pause(1)
 close
 
-function cij = cost(dist)
-    cij = dist;
-end
+%function cij = cost(dist)
+ %   cij = dist;
+%end
