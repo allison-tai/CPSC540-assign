@@ -16,7 +16,7 @@ end
 correct = [];
 correctstd = [];
 
-for models = 2:2:10 % analyze method
+for models = 1:1:6 % analyze method
 correct2 = 0; % counter
 [X samplabel pi] = bernoullimodel(images,labels,1000,models); % obtain samples 
 pi = reshape(pi,[1 models*10]); % weights of samples

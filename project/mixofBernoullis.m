@@ -9,12 +9,12 @@ mu = rand(1,d);
 model.mu = 0.1*mu+0.9*X(randi(n,K,1),:);
 
 delta = Inf; Lold = -Inf; counter = 0;
-while delta>10000 % until sufficiently close to maximum
+while delta>1000 % until sufficiently close to maximum
     [model L] = EM(X,model,alpha,K);
     delta = L-Lold;
     Lold = L;
     counter = counter + 1;
-    fprintf('run %2.f:\tdelta = %1.3f\n',counter,delta)
+    %fprintf('run %2.f:\tdelta = %1.3f\n',counter,delta);
 end
 
 model.predict = @predict;

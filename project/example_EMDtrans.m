@@ -3,10 +3,6 @@ load transMNIST.mat
 
 X = transImages;
 
-% thing to convolve
-filter = [1];
-%filter = [1 0; 0 0];
-
 % get random test data
 Itest = randi(size(X,3));
 Xtest = X(:,:,Itest); labeltest = labels(Itest);
@@ -14,17 +10,11 @@ Xtest = X(:,:,Itest); labeltest = labels(Itest);
 % get random sample data for each number
 samples = 3; % 3 samples of each number
 index = 0:9;
-[X samplabel] = sampleMNIST(n,transImages,labels, index);
+load MNIST
+[X samplabel pi] = bernoullimodel(images,labels,1000,samples); % obtain samples 
 
+[n m N] = size(X);
 
-% convolve
-Xc = [];
-for i=1:samples*10
-    Xc(:,:,i) = convolve(X(:,:,i),filter,1);
-end
-Xctest = convolve(Xtest(:,:),filter,1);
-
-[n m] = size(Xctest);
 % build cost matrix
 dist = zeros(n*m,n*m);
 cij = zeros(n*m,n*m);
@@ -37,9 +27,9 @@ end
 cij = dist;
 
 % vectorize inputs and solve transportation
-x = reshape(Xctest,[n*m 1]);
-y = squeeze(reshape(Xc,[n*m 1 samples*10]));
-tol = 0.1; lambda = 1.5;
+x = reshape(Xtest,[n*m 1]);
+y = squeeze(reshape(X,[n*m 1 samples*10]));
+tol = 0.001; lambda = 1;
 
 % do OT for translation checks
 [C gamma] = OTsolve(cij,x,y,tol,lambda);
@@ -53,7 +43,7 @@ end
 
 % find optimal match
 P = 1./C;
-[Cmin xi] = min(min(C)); 
+[Cmin xi] = min(C); 
  
 % individual case
 fprintf('Error (transportation cost) is %.3f\n',Cmin)
@@ -64,7 +54,9 @@ subplot(2,1,2);
 imshow(Xtest) % show test
 pause(1)
 close
-
-%function cij = cost(dist)
- %   cij = dist;
-%end
+return
+for i=1:30
+    figure(1)
+    imshow(reshape(multX(:,i),[28 28]))
+    pause
+end

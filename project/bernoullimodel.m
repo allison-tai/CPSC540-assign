@@ -5,13 +5,14 @@ for n=0:9
 
 [Xtrain trainlabels] = sampleMNIST(ntrain,images,labels,n);
 Xtrain = reshape(Xtrain,[28^2 ntrain])';
-model = mixofBernoullis(Xtrain,1/100,clusters);
+model = mixofBernoullis(Xtrain,1/100,clusters+1);
 
-[samples plots] = model.sample(model,clusters);
-plots = plots';
+[samples plots] = model.sample(model,clusters+1);
+plots = plots(1:clusters,:)';
+model.pi = sort(model.pi(:),'descend');
 
 models = cat(4,models,reshape(plots,[28 28 clusters]));
-pi = [pi model.pi];
+pi = [pi model.pi(1:clusters)];
 label = [label ones(clusters,1)*n];
 end
 
