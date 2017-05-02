@@ -9,19 +9,22 @@ dist = zeros(m*n,m*n);
 for i=1:m*n
     for j = 1:m*n
         % calculate distance between points, easier way to do this?
-        dist(i,j) = sqrt((ceil(i/n)-ceil(j/n))^2+(mod(i,n)-mod(j,n))^2);
+        dist(i,j) = sqrt((ceil(i/n)-ceil(j/n))^2+(mod(i-1,n)-mod(j-1,n))^2);
     end
 end
 % keep track of success
 correct = [];
 correctstd = [];
 
-for models = 2:2:10 % analyze method
-correct2 = 0; % counter
-[X samplabel pi] = bernoullimodel(images,labels,1000,models); % obtain samples 
+for models = 1:1:6 % analyze method
+correct1 = 0; correct2 = 0; % counter
+[X samplabel] = sampleMNIST(models,images,labels,0:9);
+%% use each of the following lines
+%[X samplabel pi] = bernoullimodel(images,labels,5000,models); % obtain samples 
+%insert barycenter method for sampling [X samplabel] her
 pi = reshape(pi,[1 models*10]); % weights of samples
 X = reshape(X,[28 28 models*10]); samplabel = reshape(samplabel,[models*10 1]);
-fprintf('Number of models:\t %2d \n',models)
+fprintf('Number of models:\t %2d \t\t',models)
 for i=1:N
 
 % get random test data
@@ -43,16 +46,18 @@ end
 Cost = [];
 for i=0:9
     I = find(samplabel==i);
-    Cost = [Cost norm(C(I).*pi(I),1)]; % sum of the cost of transporting to each of the samples
+    Cost = [Cost norm(C(I)./pi(I),1)]; % sum of the cost of transporting to each of the samples
 end
 [Cmin index] = min(Cost);
-
+if samplabel(index)==labeltest
+    correct1 = correct1+1;
+end
 
 
 end
 correct = [correct correct2/N];
 fprintf('EMD accuracy:\t %2.f %%\n',correct2/N*100)
-pause(2)
+%fprintf('weighted accuracy:\t %2.f %%\n',correct1/N*100)
 end
 
 
